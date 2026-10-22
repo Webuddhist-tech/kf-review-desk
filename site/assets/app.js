@@ -94,9 +94,13 @@ const isDone = it => !!(rec(it.k) && rec(it.k).dec);
 
 /* ---------------- data ---------------- */
 async function load() {
-  $("#loading").textContent = tt("loading");
+  const names = ["meta", ...TEXTS]; let got = 0, slow = false;
+  const show = () => { const el = $("#loading"); if (el) el.innerHTML = `${esc(tt("loading"))} ${got}/${names.length}${slow ? `<br><small>${esc(tt("loading_slow"))}</small>` : ""}`; };
+  const slowTimer = setTimeout(() => { slow = true; show(); }, 5000);
+  show();
   try {
-    const [meta, ...parts] = await Promise.all(["meta", ...TEXTS].map(n => fetch(`data/${n}.json`).then(r => { if (!r.ok) throw new Error(n); return r.json(); })));
+    const [meta, ...parts] = await Promise.all(names.map(n => fetch(`data/${n}.json`).then(r => { if (!r.ok) throw new Error(n); return r.json(); }).then(j => { got++; show(); return j; })));
+    clearTimeout(slowTimer);
     S.meta = meta;
     TEXTS.forEach((t, i) => { S.data[t] = parts[i]; });
   } catch (e) {
