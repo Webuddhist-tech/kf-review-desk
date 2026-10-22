@@ -7,11 +7,13 @@
  *
  * Each reviewer's mark on a segment is one row in the "Reviews" tab, keyed by
  * (reviewer device, segment). When the reviewer changes a mark, that row is updated.
+ * Apps Script is not given the sender's IP address, so the page looks it up (ipify)
+ * and sends it with the browser/OS; both are stored as reported by the page.
  * Every received batch is also appended to the "Log" tab (raw history).
  */
 
 var COLS = [
-  'updated_at', 'reviewer', 'device', 'text', 'language', 'version', 'segment',
+  'updated_at', 'reviewer', 'ip', 'browser', 'device', 'text', 'language', 'version', 'segment',
   'worst_severity', 'status', 'decision', 'checker_findings_verdicts',
   'corrected_translation', 'note', 'current_translation', 'link', 'key', 'row_id'
 ];
@@ -29,6 +31,7 @@ function doPost(e) {
     var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (body.app !== 'kf-review' || !Array.isArray(body.rows)) return json_({ ok: false, error: 'bad payload' });
     var device = clean_(body.device).slice(0, 40);
+    var ip = clean_(body.ip).slice(0, 45), browser = clean_(body.browser).slice(0, 80);
     if (!device) return json_({ ok: false, error: 'no device' });
     var rows = body.rows.slice(0, MAX_ROWS);
 
@@ -46,7 +49,7 @@ function doPost(e) {
       var key = clean_(r.key);
       if (!key) return;
       var rec = {
-        updated_at: now, reviewer: clean_(r.reviewer) || '(no name)', device: device,
+        updated_at: now, reviewer: clean_(r.reviewer) || '(no name)', ip: ip, browser: browser, device: device,
         text: r.text, language: r.language, version: r.version, segment: r.segment,
         worst_severity: r.worst_severity, status: r.status, decision: r.decision,
         checker_findings_verdicts: r.checker_findings_verdicts,
@@ -61,8 +64,8 @@ function doPost(e) {
     });
     if (appended.length) sh.getRange(sh.getLastRow() + 1, 1, appended.length, COLS.length).setValues(appended);
 
-    var log = sheet_(ss, 'Log', ['received_at', 'reviewer', 'device', 'rows', 'keys']);
-    log.appendRow([now, clean_(body.reviewer) || '(no name)', device, rows.length,
+    var log = sheet_(ss, 'Log', ['received_at', 'reviewer', 'ip', 'browser', 'device', 'rows', 'keys']);
+    log.appendRow([now, clean_(body.reviewer) || '(no name)', ip, browser, device, rows.length,
       clean_(rows.map(function (r) { return r.key; }).join(' '))]);
 
     return json_({ ok: true, saved: rows.length });

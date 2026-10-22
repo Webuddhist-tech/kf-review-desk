@@ -43,12 +43,32 @@ const rec = k => store.reviews[k];
 function setRec(k, patch) {
   store.reviews[k] = Object.assign({}, store.reviews[k] || {}, patch, { ts: Date.now(), by: store.reviewer || "" });
   markDirty([k]);
-  if (SYNC_URL && !store.reviewer.trim() && !nudged) { nudged = true; toast(tt("name_nudge")); $("#who").focus(); }
 }
 
 /* ---------------- sync to the team's Google Sheet ---------------- */
 const SYNC_URL = ((window.KF_CONFIG || {}).submitUrl || "").trim();
-let nudged = false, syncing = false, syncTimer = null, syncState = "";
+let syncing = false, syncTimer = null, syncState = "";
+/* Who sent it: Apps Script cannot see the sender's IP, so ask ipify once per visit (blank if blocked). */
+let clientIp = "";
+const ipReady = !SYNC_URL ? Promise.resolve("") : Promise.race([
+  fetch("https://api.ipify.org?format=json").then(r => r.json()).then(j => (clientIp = String(j.ip || ""))),
+  new Promise(res => setTimeout(() => res(""), 4000))
+]).catch(() => "");
+function browserLabel() {
+  const ua = navigator.userAgent;
+  const b = (ua.match(/(Edg|OPR|SamsungBrowser|Firefox|FxiOS|CriOS|Chrome|Version)\/(\d+)/) || []);
+  const name = { Edg: "Edge", OPR: "Opera", SamsungBrowser: "Samsung", FxiOS: "Firefox", CriOS: "Chrome", Version: "Safari" }[b[1]] || b[1] || "Browser";
+  const os = /iPhone|iPad/.test(ua) ? "iOS" : /Android/.test(ua) ? "Android" : /Mac OS X/.test(ua) ? "macOS" : /Windows/.test(ua) ? "Windows" : /Linux/.test(ua) ? "Linux" : "";
+  return `${name}${b[2] ? " " + b[2] : ""}${os ? " · " + os : ""}`;
+}
+/* With sync on, a reviewer must give a name before marking anything. */
+const needName = () => SYNC_URL && !store.reviewer.trim();
+function askName() {
+  $("#overlay").innerHTML = `<div class="modal"><form class="sheet" role="dialog" aria-modal="true" id="name-form"><h2>${esc(tt("name_title"))}</h2><p>${esc(tt("name_why"))}</p>
+    <input class="name-in" id="name-in" type="text" maxlength="60" autocomplete="name" placeholder="${esc(tt("reviewer_ph"))}" required>
+    <p class="small">${esc(tt("help_note_sync"))}</p><div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn" data-close>${esc(tt("close"))}</button><button class="btn primary" type="submit">${esc(tt("name_ok"))}</button></div></form></div>`;
+  $("#name-in").focus();
+}
 function markDirty(keys) {
   const now = Date.now();
   keys.forEach(k => { store.dirty[k] = now; });
@@ -65,7 +85,7 @@ function setSync(st) {
 }
 function syncPayload(keys) {
   const who = store.reviewer.trim();
-  return JSON.stringify({ app: "kf-review", v: 1, device: store.device, reviewer: who, rows: exportRows(keys).map(r => Object.assign(r, { reviewer: who || r.reviewer })) });
+  return JSON.stringify({ app: "kf-review", v: 1, device: store.device, reviewer: who, ip: clientIp, browser: browserLabel(), rows: exportRows(keys).map(r => Object.assign(r, { reviewer: who || r.reviewer })) });
 }
 async function syncNow() {
   if (!SYNC_URL || !S.meta) return;
@@ -73,6 +93,7 @@ async function syncNow() {
   if (!keys.length) { setSync("ok"); return; }
   if (syncing) { scheduleSync(1500); return; }
   syncing = true; setSync("busy");
+  await ipReady;
   let ok = false;
   try {
     const r = await fetch(SYNC_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: syncPayload(keys) });
@@ -551,6 +572,7 @@ document.addEventListener("click", e => {
     if (g === "ver" || g === "sev") { S.f[g].has(v) ? S.f[g].delete(v) : S.f[g].add(v); } else S.f[g] = S.f[g] === v ? "" : v;
     applyFilters(); renderFilters(); renderList(); return;
   }
+  if (needName() && c("[data-j], [data-dec], [data-apply], [data-act=fromcur]")) { askName(); return; }
   if ((el = c("[data-act]"))) {
     const a = el.dataset.act;
     if (a === "back") go(S.lang, null);
@@ -584,6 +606,16 @@ document.addEventListener("click", e => {
   if (c("#b-theme")) { store.theme = store.theme === "" ? "dark" : store.theme === "dark" ? "light" : ""; persist(); applyTheme(); return; }
   if (t.matches("[data-close]") || t.closest("button[data-close]")) { $("#overlay").innerHTML = ""; return; }
   if ((el = c("mark.f"))) { const f = $(`.finding[data-fi="${el.dataset.fi}"]`); if (f) { f.scrollIntoView({ block: "center", behavior: "smooth" }); f.classList.add("hot"); setTimeout(() => f.classList.remove("hot"), 1400); } return; }
+});
+document.addEventListener("submit", e => {
+  if (e.target.id !== "name-form") return;
+  e.preventDefault();
+  const v = $("#name-in").value.trim(); if (!v) return;
+  store.reviewer = v; persist(); $("#who").value = v; $("#overlay").innerHTML = "";
+  const ks = Object.keys(store.reviews); if (ks.length) markDirty(ks);
+});
+document.addEventListener("focusin", e => {
+  if (needName() && (e.target.id === "corr" || e.target.id === "note")) { e.target.blur(); askName(); }
 });
 document.addEventListener("change", e => {
   const el = e.target.closest("[data-sel]"); if (!el) return;

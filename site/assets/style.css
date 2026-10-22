@@ -215,6 +215,7 @@ details.card[open]>summary{border-bottom:1px solid var(--line2)}
 .sheet h2{margin:0 0 10px;font-size:19px}
 .sheet ol{padding-left:22px;margin:0 0 12px}
 .sheet li{margin:8px 0}
+.name-in{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);margin:4px 0 6px}
 .menu{position:absolute;right:18px;top:100%;margin-top:6px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 34px rgba(0,0,0,.28);padding:8px;z-index:20;min-width:230px;display:grid;gap:2px}
 .menu button{border:0;background:none;text-align:left;padding:8px 11px;border-radius:8px;font-weight:550}
 .menu button:hover{background:var(--accent-soft)}

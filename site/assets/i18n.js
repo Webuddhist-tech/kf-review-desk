@@ -39,9 +39,9 @@ window.I18N = {
     ],
     help_note: "Nothing you type leaves your device until you export it.",
     help_last_sync: "Type your name at the top first. Every mark is saved on this device and sent to the team's sheet automatically; you do not need to export anything.",
-    help_note_sync: "Your name, your marks, corrections and notes go to the team's Google Sheet as you work. Export is only a personal backup.",
+    help_note_sync: "Your name, marks, corrections and notes go to the team's Google Sheet as you work, together with your IP address and browser so the team can tell reviewers apart. Export is only a personal backup.",
     sync_ok: "Saved to team sheet", sync_busy: "Saving…", sync_wait: "Not sent yet, will retry", sync_title: "Your marks are sent to the team's Google Sheet automatically.",
-    name_nudge: "Please type your name at the top so the team knows who reviewed this.",
+    name_title: "Your name, please", name_why: "Before you mark anything, tell us who you are so the team knows who reviewed each segment.", name_ok: "Start reviewing",
     ty: { mistranslation: "Mistranslation", omission: "Omission", addition: "Addition", terminology: "Terminology", fluency: "Fluency", ambiguity: "Ambiguity", doctrinal: "Doctrinal", form: "Form" },
     texts: { diamond: "Diamond Sūtra", bca: "Bodhicaryāvatāra", ratna: "Ratnaguṇasaṃcayagāthā" }
   },
@@ -84,9 +84,9 @@ window.I18N = {
     ],
     help_note: "在您匯出之前，您輸入的內容不會離開這部裝置。",
     help_last_sync: "請先在上方輸入您的姓名。每個標記都會儲存在這部裝置上，並自動送到團隊的試算表，不需要匯出。",
-    help_note_sync: "您的姓名、標記、修正譯文與備註會在您審校時送到團隊的 Google 試算表。匯出只是個人備份。",
+    help_note_sync: "您的姓名、標記、修正譯文與備註會在您審校時送到團隊的 Google 試算表，並附上您的 IP 位址與瀏覽器，以便團隊區分審校者。匯出只是個人備份。",
     sync_ok: "已存到團隊試算表", sync_busy: "儲存中…", sync_wait: "尚未送出，將自動重試", sync_title: "您的標記會自動送到團隊的 Google 試算表。",
-    name_nudge: "請在上方輸入您的姓名，讓團隊知道是誰審校的。",
+    name_title: "請輸入您的姓名", name_why: "開始標記之前，請告訴我們您是誰，讓團隊知道每一段是誰審校的。", name_ok: "開始審校",
     ty: { mistranslation: "誤譯", omission: "漏譯", addition: "增譯", terminology: "術語", fluency: "文句通順", ambiguity: "含混", doctrinal: "教義", form: "格式" },
     texts: { diamond: "金剛經", bca: "入菩薩行論", ratna: "寶德藏般若頌" }
   },
@@ -129,9 +129,9 @@ window.I18N = {
     ],
     help_note: "निर्यात करने तक आपका लिखा कुछ भी आपके डिवाइस से बाहर नहीं जाता।",
     help_last_sync: "पहले ऊपर अपना नाम लिखें। हर चिह्न इस डिवाइस पर सहेजा जाता है और अपने-आप टीम की शीट में भेजा जाता है; कुछ भी निर्यात करने की ज़रूरत नहीं।",
-    help_note_sync: "आपका नाम, आपके चिह्न, सुधार और टिप्पणियाँ काम करते-करते टीम की Google शीट में पहुँचती हैं। निर्यात केवल आपका निजी बैकअप है।",
+    help_note_sync: "आपका नाम, आपके चिह्न, सुधार और टिप्पणियाँ काम करते-करते टीम की Google शीट में पहुँचती हैं, साथ में आपका IP पता और ब्राउज़र भी, ताकि टीम समीक्षकों को अलग पहचान सके। निर्यात केवल आपका निजी बैकअप है।",
     sync_ok: "टीम शीट में सहेजा गया", sync_busy: "सहेजा जा रहा है…", sync_wait: "अभी नहीं भेजा गया, फिर कोशिश होगी", sync_title: "आपके चिह्न अपने-आप टीम की Google शीट में भेजे जाते हैं।",
-    name_nudge: "कृपया ऊपर अपना नाम लिखें ताकि टीम जान सके कि समीक्षा किसने की।",
+    name_title: "कृपया अपना नाम लिखें", name_why: "कुछ भी चिह्नित करने से पहले बताएँ कि आप कौन हैं, ताकि टीम जान सके कि हर अंश की समीक्षा किसने की।", name_ok: "समीक्षा शुरू करें",
     ty: { mistranslation: "गलत अनुवाद", omission: "छूटा हुआ अंश", addition: "जोड़ा गया अंश", terminology: "पारिभाषिक शब्द", fluency: "प्रवाह", ambiguity: "अस्पष्टता", doctrinal: "सिद्धांत", form: "रूप" },
     texts: { diamond: "वज्रच्छेदिका सूत्र", bca: "बोधिचर्यावतार", ratna: "रत्नगुणसंचयगाथा" }
   }

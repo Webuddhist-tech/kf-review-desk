@@ -13,8 +13,12 @@ private repository.
 
 ## How reviews reach the team
 
-Reviewers type their name at the top and mark each segment. Every mark is saved in their browser and sent
-automatically to the team's Google Sheet (one row per reviewer per segment, updated when they change it). The
+Reviewers must give their name before they can mark anything. Every mark is saved in their browser and sent
+automatically to the team's Google Sheet (one row per reviewer per segment, updated when they change it). Each row
+also records the reviewer's public IP address (looked up through api.ipify.org, since Apps Script cannot see it),
+their browser and system (e.g. "Chrome 142 · macOS") and a random device id kept in that browser. The page tells
+reviewers this. An IP address alone does not identify a person: people on the same office network share one, and
+mobile addresses change; the name and device id are what tell reviewers apart. The
 header shows "Saved to team sheet" or, if the connection drops, "Not sent yet, will retry". Unsent marks are kept and
 sent the next time the page is open. "Export my review" downloads a personal CSV/JSON backup.
 
