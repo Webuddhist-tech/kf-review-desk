@@ -3,7 +3,8 @@
 A web page for text experts to review the AI translations that the KF pilot's fact-check flagged: 1,592 segments
 of the Diamond Sūtra, Bodhicaryāvatāra and Ratnaguṇasaṃcayagāthā in English, Chinese (Traditional) and Hindi. Each
 segment shows the Tibetan and Sanskrit, the AI drafts, what the checker flagged and why, and the aligned Tibetan
-commentaries (with English machine translations for the Diamond Sūtra and Ratnaguṇasaṃcayagāthā).
+commentaries (with English and Chinese machine translations for the Diamond Sūtra and Ratnaguṇasaṃcayagāthā;
+the Chinese view shows the Chinese ones).
 
 Links: `https://webuddhist-tech.github.io/kf-review-desk/#/en` (or `#/zh`, `#/hi`). Every segment has its own link.
 

@@ -1,16 +1,14 @@
-/**
- * KF Review Desk → Google Sheet receiver.
- *
- * Paste this into the Google Sheet's Extensions → Apps Script, then
- * Deploy → New deployment → Web app (Execute as: Me, Who has access: Anyone).
- * Put the web app URL in site/config.js as submitUrl.
- *
- * Each reviewer's mark on a segment is one row in the "Reviews" tab, keyed by
- * (reviewer device, segment). When the reviewer changes a mark, that row is updated.
- * Apps Script is not given the sender's IP address, so the page looks it up (ipify)
- * and sends it with the browser/OS; both are stored as reported by the page.
- * Every received batch is also appended to the "Log" tab (raw history).
- */
+// KF Review Desk: Google Sheet receiver.
+//
+// Paste this into the Google Sheet's Extensions > Apps Script, then
+// Deploy > New deployment > Web app (Execute as: Me, Who has access: Anyone).
+// Put the web app URL in site/config.js as submitUrl.
+//
+// Each reviewer's mark on a segment is one row in the "Reviews" tab, keyed by
+// (reviewer device, segment). When the reviewer changes a mark, that row is updated.
+// Apps Script is not given the sender's IP address, so the page looks it up (ipify)
+// and sends it with the browser/OS; both are stored as reported by the page.
+// Every received batch is also appended to the "Log" tab (raw history).
 
 var COLS = [
   'updated_at', 'reviewer', 'ip', 'browser', 'device', 'text', 'language', 'version', 'segment',

@@ -153,10 +153,22 @@ function go(lang, key, replace) {
   const h = `#/${lang}${key ? "/" + encodeURIComponent(key) : ""}`;
   if (replace) { history.replaceState(null, "", h); route(); } else if (location.hash !== h) location.hash = h; else route();
 }
+/* Chinese commentary translations (data/<text>.zh.json, aligned to passages) load only for the Chinese view. */
+const zhLoading = {};
+function ensureZh() {
+  if (S.lang !== "zh" || !S.meta) return;
+  TEXTS.forEach(t => {
+    if (!S.meta.texts[t].chinese_commentary || S.data[t].pzh || zhLoading[t]) return;
+    zhLoading[t] = fetch(`data/${t}.zh.json`).then(r => { if (!r.ok) throw new Error(t); return r.json(); })
+      .then(a => { S.data[t].pzh = a; if (S.sel && S.sel.text === t) rerender("d-comm"); })
+      .catch(() => { delete zhLoading[t]; });
+  });
+}
 function route() {
   const r = parseHash() || { lang: S.lang, key: null };
   if (r.lang !== S.lang) { S.lang = r.lang; store.lang = r.lang; persist(); S.f = Object.assign(S.f, { text: "", ver: new Set(), sev: new Set(), status: "", type: "", rev: "", q: "" }); }
   document.documentElement.lang = langAttr(S.lang);
+  ensureZh();
   const it = r.key && S.byKey[r.key] && S.byKey[r.key].lang === S.lang ? S.byKey[r.key] : null;
   const changed = it !== S.sel, sameLang = S._renderedLang === S.lang;
   if (changed) { S.sel = it; S.draft = it ? it.ci : 0; S.diff = false; S.ctab = null; S.jump = {}; }
@@ -443,7 +455,9 @@ function commStats(it) {
   return out;
 }
 function commHtml(it) {
-  const cids = Object.keys(it.s.com), hasEn = !!S.meta.texts[it.text].english_commentary;
+  const cids = Object.keys(it.s.com), tm = S.meta.texts[it.text];
+  const useZh = S.lang === "zh" && !!tm.chinese_commentary, pzh = useZh ? it.d.pzh : null;
+  const hasEn = useZh || !!tm.english_commentary, trLang = useZh ? "zh-Hant" : "en", trLab = useZh ? tt("v_zh") : tt("v_en");
   if (!cids.length) return `<h3>${esc(tt("commentaries"))}</h3><div class="cb small">${esc(tt("no_comm"))}</div>`;
   const st = commStats(it);
   if (!S.ctab || !st[S.ctab]) S.ctab = cids.slice().sort((a, b) => (st[b].cited - st[a].cited) || (st[b].hits - st[a].hits))[0];
@@ -451,16 +465,16 @@ function commHtml(it) {
   const view = hasEn ? S.cview : "bo";
   const tabs = cids.map(cid => `<button class="ctab" role="tab" data-ctab="${cid}" aria-selected="${cid === S.ctab}" title="${esc(S.meta.comm[cid].name)}${st[cid].cited ? " · " + esc(tt("cited")) : ""}">${st[cid].cited ? '<span class="star">★</span>' : ""}${esc(S.meta.comm[cid].label)}${st[cid].hits ? `<span class="hit">${st[cid].hits}</span>` : ""}</button>`).join("");
   const ps = it.s.com[S.ctab].map((pi, n, arr) => {
-    const [bo, en] = it.d.passages[pi], mk = marks(bo, S._queries);
+    const bo = it.d.passages[pi][0], en = useZh ? (pzh ? pzh[pi] : "") : it.d.passages[pi][1], mk = marks(bo, S._queries);
     const bo_ = `<div class="pcol bo" lang="bo"><span class="tag">${esc(tt("tibetan"))}</span>${mk.html}</div>`;
-    const en_ = en ? `<div class="pcol en" lang="en"><span class="tag">${esc(tt("v_en"))} · MT</span>${esc(en)}</div>` : "";
-    const none = !en && hasEn && view !== "bo" ? `<div class="pcol en small" lang="en">${esc(tt("no_en"))}</div>` : "";
+    const en_ = en ? `<div class="pcol en${useZh ? " t-zh" : ""}" lang="${trLang}"><span class="tag">${esc(trLab)} · MT</span>${esc(en)}</div>` : "";
+    const none = !en && hasEn && view !== "bo" ? `<div class="pcol en small">${esc(useZh && !pzh ? tt("loading") : tt("no_en"))}</div>` : "";
     const body = view === "bo" ? bo_ : view === "en" ? (en_ || none || bo_) : bo_ + (en_ || none);
     return `<div class="passage"><div class="pmeta"><span>${esc(S.meta.comm[S.ctab].name)}${arr.length > 1 ? ` · ${esc(tt("passage"))} ${n + 1}/${arr.length}` : ""}</span><span class="sp"></span><button class="btn sm" data-expand>${esc(tt("expand"))}</button></div><div class="pbody">${body}</div></div>`;
   }).join("");
-  const seg = `<span class="seg"><button data-cview="bo" aria-pressed="${view === "bo"}">${esc(tt("v_bo"))}</button><button data-cview="en" aria-pressed="${view === "en"}" ${hasEn ? "" : "disabled"}>${esc(tt("v_en"))}</button><button data-cview="both" aria-pressed="${view === "both"}" ${hasEn ? "" : "disabled"}>${esc(tt("v_both"))}</button></span>`;
+  const seg = `<span class="seg"><button data-cview="bo" aria-pressed="${view === "bo"}">${esc(tt("v_bo"))}</button><button data-cview="en" aria-pressed="${view === "en"}" ${hasEn ? "" : "disabled"}>${esc(trLab)}</button><button data-cview="both" aria-pressed="${view === "both"}" ${hasEn ? "" : "disabled"}>${esc(tt("v_both"))}</button></span>`;
   return `<div class="ch">${esc(tt("commentaries"))} ${seg}</div><div class="ctabs" role="tablist">${tabs}</div>${ps}
-    <div class="note-mt">${hasEn ? esc(tt("mt")) : esc(tt("no_en"))}</div>`;
+    <div class="note-mt">${hasEn ? esc(useZh ? tt("mt_zh") : tt("mt")) : esc(tt("no_en"))}</div>`;
 }
 function afterComm() {
   const root = $("#d-comm"); if (!root) return;

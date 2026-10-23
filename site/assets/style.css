@@ -201,6 +201,7 @@ mark.q.on{outline:2px solid var(--gold)}
 .pcol.open{max-height:none}
 .pcol.bo{font-size:19px}
 .pcol.en{font-family:var(--en);font-size:15.5px;line-height:1.68;color:var(--ink)}
+.pcol.en.t-zh{font-family:var(--zh);font-size:16.5px;line-height:1.85;letter-spacing:.02em}
 .pcol .tag{display:block;font:600 10.5px/1 var(--ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .note-mt{font-size:12px;color:var(--muted);padding:9px 16px;border-top:1px solid var(--line2);background:var(--paper)}
 .terms{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px}
